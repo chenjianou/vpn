@@ -3,19 +3,19 @@ import Head from 'next/head'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 
-const AutoImport: React.FC = () => {
-  const { data: sessionData } = useSession()
-  if (!sessionData?.user.id) return (<></>)
-
+const AutoImport: React.FC<{
+  userId: string
+}> = ({ userId }) => {
   const [clash, setClash] = useState('')
   const [shadowrocket, setShadowrocket] = useState('')
+
   useEffect(() => {
-    const clashUrl = `${location.origin}/api/vpn/clash/${sessionData?.user.id}`
+    const clashUrl = `${location.origin}/api/vpn/clash/${userId}`
     setClash(`clash://install-config?url=${encodeURIComponent(clashUrl)}&name=FreeVPN`)
 
-    const shadowrocketUrl = `${location.origin}/api/vpn/shadowrocket/${sessionData?.user.id}`
+    const shadowrocketUrl = `${location.origin}/api/vpn/shadowrocket/${userId}`
     setShadowrocket(`shadowrocket://add/sub://${window.btoa(shadowrocketUrl)}?name=FreeVPN`)
-  }, [sessionData])
+  }, [])
 
   const apps = [
     { name: 'Clash', url: clash },
@@ -44,7 +44,7 @@ const AuthShowcase: React.FC = () => {
       </p>
 
       <div className='flex gap-2'>
-        <AutoImport />
+        { sessionData ? (<AutoImport userId={sessionData.user.id} />) : (<></>) }
 
         <button
           className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
