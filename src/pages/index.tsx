@@ -2,9 +2,15 @@ import { type NextPage } from 'next'
 import Head from 'next/head'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useEffect, useState } from 'react'
 
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession()
+  const [subscrib, setSubscrib] = useState('')
+
+  useEffect(() => {
+    setSubscrib(`${location.origin}/api/vpn/${sessionData?.user.id}`)
+  }, [sessionData])
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -13,7 +19,7 @@ const AuthShowcase: React.FC = () => {
       </p>
 
       <div className='flex gap-2'>
-        <CopyToClipboard text={`${location.origin}/api/vpn/${sessionData?.user.id}`}>
+        <CopyToClipboard text={subscrib}>
           <button
             className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
           >Copy</button>
