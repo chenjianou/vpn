@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 import {
   createTRPCRouter,
   publicProcedure,
@@ -59,16 +59,18 @@ export const vpnRouter = createTRPCRouter({
     const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, { email: 'chenjianou1@qq.com', password: 'Cjok1234' }).then(res => res.data.data)
     return data
   }),
-  getNode: publicProcedure.input(z.object({ email: z.string(), password: z.string() }))
-    .query(async ({ input }) => {
-      const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, input).then(res => res.data.data)
-      return axios.get(`https://www.dgydgy.com/api/v1/client/subscribe?token=${data.token}`, {
-        headers: {
-          'User-Agent': 'clash',
-        },
-      }).then(res => ({
-        userInfo: res.headers['subscription-userinfo'],
+  getNode: publicProcedure.input(z.object({ email: z.string(), password: z.string(), app: z.string(), userAgent: z.string() }))
+    .query(async ({ input: { app, userAgent, ...acount } }) => {
+      const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, acount).then(res => res.data.data)
+      const url = new URL(`https://www.dgydgy.com/api/v1/client/subscribe?token=${data.token}`)
+      const headers = new AxiosHeaders()
+      headers['User-Agent'] = userAgent
+
+      if (app === 'shadowrocket') url.searchParams.append('flag', 'shadowrocket')
+
+      return axios.get(url.toString(), { headers }).then(res => ({
         data: res.data.replace(/大哥云/g, 'FreeVPN'),
+        headers: res.headers,
       }))
     }),
 })

@@ -1,16 +1,41 @@
 import { type NextPage } from 'next'
 import Head from 'next/head'
 import { signIn, signOut, useSession } from 'next-auth/react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
+const AutoImport: React.FC = () => {
+  const { data: sessionData } = useSession()
+  if (!sessionData?.user.id) return (<></>)
+
+  const [clash, setClash] = useState('')
+  const [shadowrocket, setShadowrocket] = useState('')
+  useEffect(() => {
+    const clashUrl = `${location.origin}/api/vpn/clash/${sessionData?.user.id}`
+    setClash(`clash://install-config?url=${encodeURIComponent(clashUrl)}&name=FreeVPN`)
+
+    const shadowrocketUrl = `${location.origin}/api/vpn/shadowrocket/${sessionData?.user.id}`
+    setShadowrocket(`shadowrocket://add/sub://${window.btoa(shadowrocketUrl)}?name=FreeVPN`)
+  }, [sessionData])
+
+  const apps = [
+    { name: 'Clash', url: clash },
+    { name: 'Shadowrocket', url: shadowrocket },
+  ]
+
+  return (
+    <>
+      {
+        apps.map(app => (<a
+          className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+          href={app.url}
+        >{app.name}</a>))
+      }
+    </>
+  )
+}
 
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession()
-  const [subscrib, setSubscrib] = useState('')
-
-  useEffect(() => {
-    setSubscrib(`${location.origin}/api/vpn/${sessionData?.user.id}`)
-  }, [sessionData])
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -19,11 +44,8 @@ const AuthShowcase: React.FC = () => {
       </p>
 
       <div className='flex gap-2'>
-        <CopyToClipboard text={subscrib}>
-          <button
-            className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-          >Copy</button>
-        </CopyToClipboard>
+        <AutoImport />
+
         <button
           className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
           onClick={sessionData ? () => void signOut() : () => void signIn()}
