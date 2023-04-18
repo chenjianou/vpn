@@ -1,6 +1,6 @@
-import { createTRPCRouter } from "@/server/api/trpc";
-import { exampleRouter } from "@/server/api/routers/example";
-import { vpnRouter } from "./routers/vpn";
+import { vpnRouter } from './routers/vpn'
+import { createTRPCRouter } from '@/server/api/trpc'
+import { exampleRouter } from '@/server/api/routers/example'
 
 /**
  * This is the primary router for your server.
@@ -9,8 +9,8 @@ import { vpnRouter } from "./routers/vpn";
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
-  vpn: vpnRouter
-});
+  vpn: vpnRouter,
+})
 
 // export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
