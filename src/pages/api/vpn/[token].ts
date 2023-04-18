@@ -16,7 +16,7 @@ async function vpnRouter(req: NextApiRequest, res: NextApiResponse) {
     const { email, password } = registerData.data as DageAccount
     const vpnConfig = await caller.vpn.getNode({ email, password })
     // res.status(200).json(vpnConfig);
-    res.status(200).send(vpnConfig)
+    res.status(200).setHeader('content-type', 'text/html; charset=UTF-8').setHeader('vary', 'Accept-Encoding').setHeader('content-encoding', 'br').send(vpnConfig)
   }
   catch (cause) {
     if (cause instanceof TRPCError) {
