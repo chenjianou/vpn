@@ -15,8 +15,12 @@ async function vpnRouter(req: NextApiRequest, res: NextApiResponse) {
     if (registerData.code !== 200) return res.status(200).json({ code: 500, message: '不存在' })
     const { email, password } = registerData.data as DageAccount
     const vpnConfig = await caller.vpn.getNode({ email, password })
-    // res.status(200).json(vpnConfig);
-    res.status(200).setHeader('content-type', 'text/html; charset=UTF-8').setHeader('vary', 'Accept-Encoding').setHeader('content-encoding', 'br').send(vpnConfig)
+
+    res.status(200)
+      .setHeader('Content-Disposition', 'attachment; filename="FreeVPN"')
+      .setHeader('subscription-userinfo', vpnConfig.userInfo)
+      .setHeader('profile-web-page-url', 'https://vpn.jeremye.site')
+      .send(vpnConfig.data)
   }
   catch (cause) {
     if (cause instanceof TRPCError) {

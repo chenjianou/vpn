@@ -62,6 +62,13 @@ export const vpnRouter = createTRPCRouter({
   getNode: publicProcedure.input(z.object({ email: z.string(), password: z.string() }))
     .query(async ({ input }) => {
       const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, input).then(res => res.data.data)
-      return axios.get(`https://www.dgydgy.com/api/v1/client/subscribe?token=${data.token}`).then(res => res.data)
+      return axios.get(`https://www.dgydgy.com/api/v1/client/subscribe?token=${data.token}`, {
+        headers: {
+          'User-Agent': 'clash',
+        },
+      }).then(res => ({
+        userInfo: res.headers['subscription-userinfo'],
+        data: res.data.replace(/大哥云/g, 'FreeVPN'),
+      }))
     }),
 })
