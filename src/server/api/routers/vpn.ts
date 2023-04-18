@@ -2,7 +2,6 @@ import { z } from 'zod'
 import axios from 'axios'
 import {
   createTRPCRouter,
-  protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
 import { env } from '@/env.mjs'
@@ -19,10 +18,10 @@ export const vpnRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.example.findMany()
   }),
-  getSecretMessage: protectedProcedure.query(() => {
+  getSecretMessage: publicProcedure.query(() => {
     return 'you can now see this secret message!'
   }),
-  register: protectedProcedure.input(z.object({ email: z.string(), password: z.string(), userId: z.string() })).query(async ({ ctx, input }) => {
+  register: publicProcedure.input(z.object({ email: z.string(), password: z.string(), userId: z.string() })).query(async ({ ctx, input }) => {
     if (!input.userId) {
       return {
         code: 500,
@@ -56,11 +55,11 @@ export const vpnRouter = createTRPCRouter({
       }
     }
   }),
-  login: protectedProcedure.query(async () => {
+  login: publicProcedure.query(async () => {
     const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, { email: 'chenjianou1@qq.com', password: 'Cjok1234' }).then(res => res.data.data)
     return data
   }),
-  getNode: protectedProcedure.input(z.object({ email: z.string(), password: z.string() }))
+  getNode: publicProcedure.input(z.object({ email: z.string(), password: z.string() }))
     .query(async ({ input }) => {
       const data = await axios.post(`${env.DOMAIN}api/v1/passport/auth/login`, input).then(res => res.data.data)
       return axios.get(`https://www.dgydgy.com/api/v1/client/subscribe?token=${data.token}`).then(res => res.data)
